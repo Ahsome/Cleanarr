@@ -28,6 +28,7 @@ export const ContentPage:FunctionComponent<any> = () => {
   const movieStore = React.useContext(newMovieStoreContext());
   const mediaStore = React.useContext(newMediaStoreContext());
   const deletedMediaStore = React.useContext(newMediaStoreContext());
+  const ignoredMediaStore = React.useContext(newMediaStoreContext()); //TODO: Fine a use for this
 
   useEffect(() => {
     onRefresh();
@@ -146,6 +147,21 @@ export const ContentPage:FunctionComponent<any> = () => {
     })
   }
 
+  const onIgnoreMediaItem = (movie: Content, media: Media) => {
+    toaster.warning(`Ignoring item...`, {
+      duration: 5,
+      id: 'ignore-toaster'
+    });
+    mediaStore.ignoreMedia(movie.key, media).then(() => {
+      ignoredMediaStore.addMedia(media);
+      toaster.success(`Item ignored!`, {
+        duration: 5,
+        id: 'ignore-toaster'
+      });
+    })
+    onRefresh();
+  }
+
   const renderMovieList = () => (
     <Observer>
       {() => (
@@ -168,6 +184,7 @@ export const ContentPage:FunctionComponent<any> = () => {
           addMedia={(media: Media) => mediaStore.addMedia(media)}
           removeMedia={(media: Media) => mediaStore.removeMedia(media)}
           onDeleteMedia={onDeleteMediaItem}
+          onIgnoreMedia={onIgnoreMediaItem}
           selectedMedia={mediaStore.media}
           deletedMedia={deletedMediaStore.media}
           content={movie}

@@ -4,12 +4,23 @@ import os
 import requests as requests
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
 from plex.classes import PlexWrapper
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movies.db'
+db = SQLAlchemy(app)
 CORS(app)
 
+#Create db model
+class Media(db.Model):
+    id=db.Column(db.Integer, primary_key=True, nullable=False)
+    media_id=db.Column(db.Integer, nullable=False)
+    media_name=db.Column(db.String(200), nullable=False)
+    
+    def __repr__(self):
+        return '<Name %r>' % self.id
 
 @app.errorhandler(Exception)
 def internal_error(error):
@@ -34,7 +45,23 @@ def get_server_proxy():
 
 @app.route("/content/dupes")
 def get_movies():
-    dupes = PlexWrapper().get_dupe_content()
+    dupes = PlexWrapper().get_dupe_content(db=db)
+    proper_dupes = []
+    for movie in dupes:
+        # print(movie)
+        for media in movie["media"]:
+            pass
+            print("yes")
+            movie["media"] = [media for media in movie["media"] if not bool(db.session.query(Media).filter_by(media_id=media["id"]).first())]
+            print(movie["media"])
+                # del movie["media"][media]
+        #     # print(media)
+        #     print(exists)
+            # print(media.id)
+        # print(proper_dupes)
+    # print(dupes)
+    # print(dupes)
+    # print(proper_dupes)
     return jsonify(dupes)
 
 
@@ -59,6 +86,32 @@ def delete_media():
                 print(part.file)
             media.delete()
     return jsonify({"success": True})
+
+@app.route("/ignore/media", methods=["POST"])
+def ignore_media():
+    content = request.get_json()
+    content_key = content["content_key"]
+    media_id = content["media_id"]
+
+    content = PlexWrapper().get_content(content_key)
+    
+    with open('ignore.txt', 'a') as the_file:
+        try:
+            db.session.add(Media(media_id=media_id, media_name=content.title))
+            db.session.commit()
+        except:
+            pass
+    
+
+    return jsonify({"success": True})
+
+    # for media in content.media:
+    #     if media.id == media_id:
+    #         print(content.title, media.id)
+    #         for part in media.parts:
+    #             print(part.file)
+    #         media.delete()
+    # return jsonify({"success": True})
 
 # Static File Hosting Hack
 # See https://github.com/tiangolo/uwsgi-nginx-flask-docker/blob/master/deprecated-single-page-apps-in-same-container.md

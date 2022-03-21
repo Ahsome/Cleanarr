@@ -6,7 +6,6 @@ from plexapi.media import Media, MediaPart, MediaPartStream
 from plexapi.server import PlexServer
 from plexapi.video import Movie, Video, Episode
 
-
 class PlexWrapper(object):
     def __init__(self):
         self.baseurl = os.environ.get("PLEX_BASE_URL")
@@ -32,12 +31,11 @@ class PlexWrapper(object):
             'url': self.baseurl + '/web/index.html'
         }
 
-    def get_dupe_content(self):
+    def get_dupe_content(self, db):
         dupes = []
         for section in self._get_sections():
             for movie in section.search(duplicate=True, maxresults=self.maxresults, libtype='movie'):
-                if len(movie.media) > 1:
-                    dupes.append(self.movie_to_dict(movie, section.title))
+                dupes.append(self.movie_to_dict(movie, section.title))
             for episode in section.search(duplicate=True, maxresults=self.maxresults, libtype='episode'):
                 if len(episode.media) > 1:
                     dupes.append(self.episode_to_dict(episode, section.title))

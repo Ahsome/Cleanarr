@@ -10,6 +10,7 @@ const INFO_URL = `${BACKEND_URL}server/info`;
 const DUPES_URL = `${BACKEND_URL}content/dupes`;
 const SAMPLES_URL = `${BACKEND_URL}content/samples`;
 const DELETE_MEDIA_URL = `${BACKEND_URL}delete/media`;
+const IGNORE_MEDIA_URL = `${BACKEND_URL}ignore/media`;
 
 export const getServerInfo = (): Promise<any> => {
   return axios.get(INFO_URL);
@@ -25,6 +26,13 @@ export const getSampleContent = (): Promise<any> => {
 
 export const deleteMedia = (contentKey: string, mediaId: number): Promise<any> => {
   return axios.post(DELETE_MEDIA_URL, {
+    'content_key': contentKey,
+    'media_id': mediaId
+  })
+};
+
+export const ignoreMedia = (contentKey: string, mediaId: number): Promise<any> => {
+  return axios.post(IGNORE_MEDIA_URL, {
     'content_key': contentKey,
     'media_id': mediaId
   })
