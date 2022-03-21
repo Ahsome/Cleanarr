@@ -1,3 +1,4 @@
 .idea
 backend/start.bat
 frontend/start.bat
+backend/movies.db
