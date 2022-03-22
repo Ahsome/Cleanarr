@@ -47,7 +47,7 @@ def get_server_proxy():
 def get_movies():
     dupes = PlexWrapper().get_dupe_content(db=db)
     proper_dupes = []
-    for movie in dupes:
+    for idx, movie in enumerate(dupes):
         # print(movie)
         for media in movie["media"]:
             pass
@@ -58,6 +58,9 @@ def get_movies():
         #     # print(media)
         #     print(exists)
             # print(media.id)
+        if len(movie["media"]) < 2:
+            dupes.pop(idx)
+
         # print(proper_dupes)
     # print(dupes)
     # print(dupes)
