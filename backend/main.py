@@ -45,7 +45,8 @@ def get_server_proxy():
 
 @app.route("/content/dupes")
 def get_movies():
-    dupes = PlexWrapper().get_dupe_content(db=db)
+    extra_count = db.session.query(Media).count()
+    dupes = PlexWrapper().get_dupe_content(extra_count=extra_count)
     proper_dupes = []
     for idx, movie in enumerate(dupes):
         # print(movie)
