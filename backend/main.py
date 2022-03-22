@@ -101,8 +101,9 @@ def ignore_media():
     
     with open('ignore.txt', 'a') as the_file:
         try:
-            db.session.add(Media(media_id=media_id, media_name=content.title))
-            db.session.commit()
+            if not bool(db.session.query(Media).filter_by(media_id=media["id"]).first()):
+                db.session.add(Media(media_id=media_id, media_name=content.title))
+                db.session.commit()
         except:
             pass
     
