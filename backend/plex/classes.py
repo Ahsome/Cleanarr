@@ -6,6 +6,7 @@ from plexapi.media import Media, MediaPart, MediaPartStream
 from plexapi.server import PlexServer
 from plexapi.video import Movie, Video, Episode
 
+
 class PlexWrapper(object):
     def __init__(self):
         self.baseurl = os.environ.get("PLEX_BASE_URL")
@@ -26,17 +27,22 @@ class PlexWrapper(object):
         return [self.plex.library.section(title=library) for library in self.libraries]
 
     def get_server_info(self):
-        return {
-            'name': self.plex.friendlyName,
-            'url': self.baseurl + '/web/index.html'
-        }
+        return {"name": self.plex.friendlyName, "url": self.baseurl + "/web/index.html"}
 
     def get_dupe_content(self, ignored_files_count):
         dupes = []
         for section in self._get_sections():
-            for movie in section.search(duplicate=True, maxresults=self.maxresults+ignored_files_count, libtype='movie'):
+            for movie in section.search(
+                duplicate=True,
+                maxresults=self.maxresults + ignored_files_count,
+                libtype="movie",
+            ):
                 dupes.append(self.movie_to_dict(movie, section.title))
-            for episode in section.search(duplicate=True, maxresults=self.maxresults+ignored_files_count, libtype='episode'):
+            for episode in section.search(
+                duplicate=True,
+                maxresults=self.maxresults + ignored_files_count,
+                libtype="episode",
+            ):
                 if len(episode.media) > 1:
                     dupes.append(self.episode_to_dict(episode, section.title))
         return dupes
@@ -47,16 +53,16 @@ class PlexWrapper(object):
         for section in self._get_sections():
             for mediaContent in section.all():
                 samples = []
-                if mediaContent.TYPE != 'movie' or mediaContent.TYPE != 'episode':
+                if mediaContent.TYPE != "movie" or mediaContent.TYPE != "episode":
                     continue
                 for media in mediaContent.media:
                     if media.duration is None or media.duration < (5 * 60 * 1000):
                         samples.append(self.media_to_dict(media))
                 if len(samples) > 0:
                     _media = dict()
-                    if mediaContent.TYPE == 'movie':
+                    if mediaContent.TYPE == "movie":
                         _media = self.movie_to_dict(mediaContent, section.title)
-                    elif mediaContent.TYPE == 'episode':
+                    elif mediaContent.TYPE == "episode":
                         _media = self.episode_to_dict(mediaContent, section.title)
                     _media["media"] = samples
                     content.append(_media)
@@ -79,14 +85,18 @@ class PlexWrapper(object):
             "type": video.type,
             "updatedAt": str(video.updatedAt),
             "viewCount": str(video.viewCount),
-            "url": self.baseurl + '/web/index.html#!/server/' + self.plex.machineIdentifier + '/details?key=' + urllib.parse.quote_plus(video.key)
+            "url": self.baseurl
+            + "/web/index.html#!/server/"
+            + self.plex.machineIdentifier
+            + "/details?key="
+            + urllib.parse.quote_plus(video.key),
         }
 
     def movie_to_dict(self, movie: Movie, library: str) -> dict:
         # https://python-plexapi.readthedocs.io/en/latest/modules/video.html#plexapi.video.Movie
         return {
             **self.video_to_dict(movie),
-            "contentType": 'movie',
+            "contentType": "movie",
             "library": library,
             "duration": movie.duration,
             "guid": movie.guid,
@@ -105,7 +115,7 @@ class PlexWrapper(object):
         # https://python-plexapi.readthedocs.io/en/latest/modules/video.html#plexapi.video.Movie
         return {
             **self.video_to_dict(episode),
-            "contentType": 'episode',
+            "contentType": "episode",
             "library": library,
             "duration": episode.duration,
             "guid": episode.guid,

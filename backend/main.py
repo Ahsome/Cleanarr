@@ -47,7 +47,9 @@ def get_server_proxy():
 @app.route("/content/dupes")
 def get_movies():
     ignored_files_count = db.session.query(Media).count()
-    duplicated_movies = PlexWrapper().get_dupe_content(ignored_files_count=ignored_files_count)
+    duplicated_movies = PlexWrapper().get_dupe_content(
+        ignored_files_count=ignored_files_count
+    )
     duplicated_files = []
 
     for movie in duplicated_movies:
