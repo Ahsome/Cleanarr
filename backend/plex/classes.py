@@ -31,12 +31,12 @@ class PlexWrapper(object):
             'url': self.baseurl + '/web/index.html'
         }
 
-    def get_dupe_content(self, extra_count):
+    def get_dupe_content(self, ignored_files_count):
         dupes = []
         for section in self._get_sections():
-            for movie in section.search(duplicate=True, maxresults=self.maxresults+extra_count, libtype='movie'):
+            for movie in section.search(duplicate=True, maxresults=self.maxresults+ignored_files_count, libtype='movie'):
                 dupes.append(self.movie_to_dict(movie, section.title))
-            for episode in section.search(duplicate=True, maxresults=self.maxresults+extra_count, libtype='episode'):
+            for episode in section.search(duplicate=True, maxresults=self.maxresults+ignored_files_count, libtype='episode'):
                 if len(episode.media) > 1:
                     dupes.append(self.episode_to_dict(episode, section.title))
         return dupes
