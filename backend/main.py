@@ -47,25 +47,26 @@ def get_server_proxy():
 @app.route("/content/dupes")
 def get_movies():
     ignored_files_count = db.session.query(Media).count()
-    duplicated_movies = PlexWrapper().get_dupe_content(
+    movies = PlexWrapper().get_dupe_content(
         ignored_files_count=ignored_files_count
     )
-    duplicated_files = []
 
-    for movie in duplicated_movies:
+    for movie in movies:
 
-        dupes_media = [
-            media
-            for media in movie["media"]
-            if not bool(db.session.query(Media).filter_by(media_id=media["id"]).first())
-        ]
-        movie["media"] = dupes_media
+        for media in movie["media"]:
+            if bool(db.session.query(Media).filter_by(media_id=media["id"]).first()):
+                media["ignored"] = True
+            else:
+                media["ignored"] = False
+        # dupes_media = [
+        #     media
+        #     for media in movie["media"]
+        #     if not bool(db.session.query(Media).filter_by(media_id=media["id"]).first())
+        # ]
+        # movie["media"] = media
 
-        if len(dupes_media) > 1:
-            duplicated_files += [movie]
-
-    print(duplicated_files)
-    return jsonify(duplicated_files)
+    print(movies)
+    return jsonify(movies)
 
 
 @app.route("/content/samples")
